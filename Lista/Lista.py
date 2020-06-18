@@ -1,5 +1,6 @@
 from Excepcion import Elemento
 from Excepcion import Iter
+from Excepcion import ListaVacia
 
 '''
 Clase para los nodos de la lista. Se tiene un nodo anterior y uno siguiente
@@ -22,7 +23,8 @@ class Nodo:
 Clase para los iteradores
 '''
 class Iterator:
-	def __init__(self, anterior = None, cabeza):
+
+	def __init__(self, cabeza, anterior = None):
 		# Nodo siguiente
 		self.siguiente = cabeza
 		# Nodo anterior
@@ -141,7 +143,7 @@ class Lista:
 			n.anterior = self.rabo
 			self.rabo.siguiente = n
 			self.rabo = n
-		self.longitud = self.get_longitud() + 1
+		self.longitud += 1
 
 	'''
 	Agrega un elemento al final de la lista. Si la lista no tiene elementos, 
@@ -176,7 +178,7 @@ class Lista:
 			n.siguiente = self.cabeza
 			self.cabeza.anterior = n
 			self.cabeza = n
-		self.longitud = self.get_longitud() + 1
+		self.longitud += 1
 
 	'''
 	Inserta un elemento en un índice explícito.
@@ -210,7 +212,7 @@ class Lista:
 			a.siguiente = n
 			n.siguiente = s
 			s.anterior = n
-			self.longitud = self.get_longitud() + 1
+			self.longitud += 1
 
 
 	'''
@@ -226,5 +228,198 @@ class Lista:
 		c = 0
 		while c < i:
 			it.next()
-			c = c+1
+			c += 1
 		return it.siguiente
+
+	'''
+	Elimina un elemento de la lista. Si el elemento no está contenido en la
+	lista, el método no la modifica
+
+	param: elemento
+		El elemento a eliminar
+	'''
+	def elimina(self, elemento):
+		n = self.busca_nodo(elemento)
+		if n is not None:
+			self.elimina_nodo(n)
+
+	def busca_nodo(self, elemento):
+		it = Iterator(self.cabeza)
+		while it.has_next():
+			if it.next() is elemento:
+				return it.anterior
+		return None
+
+	def elimina_nodo(self, n):
+		if self.cabeza is self.rabo:
+			self.cabeza = self.rabo = None
+		elif self.cabeza is n:
+			s = n.siguiente
+			s.anterior = None
+			self.cabeza = s
+		elif self.rabo is n:
+			a = n.anterior
+			a.siguiente = None
+			self.rabo = a
+		else:
+			a = n.anterior
+			s = n.siguiente
+			a.siguiente = s
+			s.anterior = a
+		self.longitud -= 1
+
+	'''
+	Elimina el primer elemento de la lista y lo regresa.
+
+	return: El primer elemento de la lista antes de eliminarlo
+
+	raise: ListaVacia
+		Si la lista está vacía
+	'''
+	def elimina_primero(self):
+		if self.esVacia():
+			raise ListaVacia('Lista vacía')
+		c = self.cabeza
+		elimina_nodo(c)
+		return c.elemento
+
+	'''
+	Elimina el último elemento de la lista y lo regresa.
+
+	return: El último elemento de la lista antes de eliminarlo
+
+	raise: ListaVacia
+		Si la lista está vacía
+	'''
+	def elimina_ultimo(self):
+		if self.esVacia():
+			raise ListaVacia('Lista vacía')
+		r = self.rabo
+		elimina_nodo(r)
+		return r.elemento
+
+	'''
+	Nos dice si un elemento está en la lista.
+
+	param: elemento
+		El elemento que queremos saber si está en la lista
+
+	return: True si el elemento está en la lista, False en otro caso.
+	'''
+	def contiene(self, elemento):
+		return busca_nodo(elemento) is not None
+
+	'''
+	Regresa la reversa de la lista
+
+	return: Una nueva lista que es la reversa la que manda llamar el método
+	'''
+	def reversa(self):
+		l = Lista
+		it = Iterator(self.cabeza)
+		while it.has_next():
+			l.agrega_inicio(it.next())
+		return l
+
+	'''
+	Regresa una copia de la lista. La copia tiene los mismo elementos que la
+	lista que manda llamar el método, en el mismo orden.
+
+	return: una copia de la lista
+	'''
+	def copia(self):
+		l = Lista
+		it = Iterator(self.cabeza)
+		while it.has_next():
+			l.agrega(it.next())
+		return l
+
+	'''
+	Limpia la lista de elementos, dejándola vacía
+	'''
+	def limpia(self):
+		self.cabeza = self.rabo = None
+		self.longitud = 0
+
+	'''
+	Regresa el primer elemento de la lista.
+
+	return: El primer elemento de la lista
+
+	raise: ListaVacia
+		Si la lista está vacía
+	'''
+	def get_primero(self):
+		if self.esVacia():
+			raise ListaVacia('Lista vacía')
+		return self.cabeza.elemento
+
+	'''
+	Regresa el último elemento de la lista.
+
+	return: El último elemento de la lista
+
+	raise: ListaVacia
+		Si la lista está vacía
+	'''
+	def get_ultimo(self):
+		if self.esVacia():
+			raise ListaVacia('Lista vacía')
+		return self.rabo.elemento
+
+	'''
+	Regresa el i-esimo elemento de la lista.
+
+	param: i
+		El índice del elemento que queremos.
+
+	return: El i-ésimo elemento de la lista.
+
+	raise: Elemento
+		Se lanza una excepción en caso de que el índice del elemento es inválido
+	'''
+	def get(self, i):
+		if i < 0 and i >= self.longitud:
+			raise Elemento('Elemento no válido')
+		return self.iesimo_nodo(i).elemento
+
+	def indice_de(self, elemento):
+		c = 0
+		it = Iterator(self.cabeza)
+		while it.has_next():
+			if it.next() is elemento:
+				return c
+			c += 1
+		return -1
+
+	'''
+	Regresa una representación en cadena de la lista.
+
+	return: Una representación en cadena de la lista
+	'''
+	def to_string(self):
+		if self.esVacia():
+			return '[]'
+		it = Iterator(self.cabeza)
+		r = '['
+		while it.has_next():
+			r += '{:s}, '.format(it.next())
+		return r[0:len(r)-2] + ']'
+
+	'''
+	Nos dice si la lista es igual al objeto recibido.
+
+	param: El objeto con el que hay que comparar.
+
+	return: True si la lista es igual al objeto recibido, False en otro caso
+	'''
+	def equals(self, lista):
+		if lista == None or type(lista) is not Lista:
+			return False
+		li = Lista(lista)
+		n = Iterator(self.cabeza)
+		m = Iterator(li.cabeza)
+		while n.has_next() and m.has_next():
+			if n.next() is not m.next():
+				return False
+		return True
